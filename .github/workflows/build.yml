@@ -14,15 +14,15 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++-12
+          sudo apt-get install -y cmake g++-12 qt6-base-dev
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
 
-      - name: Build igi1conv (CLI only, no Qt)
+      - name: Build igi1conv
         run: |
           git clone --depth 1 https://github.com/heaven-hm/project-igi-converter.git
           cd project-igi-converter
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --parallel
 
       - name: Compile QSC to QVM
