@@ -6,25 +6,32 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Build igi1conv
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++-12
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
+
+      - name: Build igi1conv (CLI only, no Qt)
         run: |
           git clone --depth 1 https://github.com/heaven-hm/project-igi-converter.git
           cd project-igi-converter
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF
           cmake --build build --parallel
 
       - name: Compile QSC to QVM
         run: |
-          mkdir dist
-          $exe = Get-ChildItem -Path .\project-igi-converter\build -Recurse -Filter "igi1conv.exe" | Select-Object -First 1
-          Copy-Item $exe.FullName .\igi1conv.exe
-          .\igi1conv.exe qsc compile MISSION.qsc -o dist\MISSION.qvm
-          .\igi1conv.exe qsc compile OBJECTS.qsc -o dist\OBJECTS.qvm
+          mkdir -p dist
+          find project-igi-converter/build -name "igi1conv" -type f | head -1 | xargs -I {} cp {} ./igi1conv
+          chmod +x igi1conv
+          ./igi1conv qsc compile MISSION.qsc -o dist/MISSION.qvm
+          ./igi1conv qsc compile OBJECTS.qsc -o dist/OBJECTS.qvm
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
