@@ -11,14 +11,23 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download igi1conv
+      - name: Install dependencies
         run: |
-          curl -L -o igi1conv https://github.com/heaven-hm/project-igi-converter/releases/latest/download/igi1conv-linux
-          chmod +x igi1conv
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ qt6-base-dev
+
+      - name: Build igi1conv
+        run: |
+          git clone --depth 1 https://github.com/heaven-hm/project-igi-converter.git
+          cd project-igi-converter
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
 
       - name: Compile QSC to QVM
         run: |
           mkdir -p dist
+          find build -name "igi1conv" -type f | head -1 | xargs -I {} cp {} ./igi1conv
+          chmod +x igi1conv
           ./igi1conv qsc compile MISSION.qsc -o dist/MISSION.qvm
           ./igi1conv qsc compile OBJECTS.qsc -o dist/OBJECTS.qvm
 
