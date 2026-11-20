@@ -1,0 +1,38 @@
+name: Build IGI 1 Mission
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++
+
+      - name: Build igi1conv
+        run: |
+          git clone --depth 1 https://github.com/heaven-hm/project-igi-converter.git
+          cd project-igi-converter
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+
+      - name: Compile QSC to QVM
+        run: |
+          mkdir -p dist
+          ./project-igi-converter/build/igi1conv qsc compile MISSION.qsc -o dist/MISSION.qvm
+          ./project-igi-converter/build/igi1conv qsc compile OBJECTS.qsc -o dist/OBJECTS.qvm
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: igi-mission-qvm
+          path: dist/   
