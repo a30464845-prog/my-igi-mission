@@ -1,0 +1,9 @@
+{
+  "igi1": {
+    "collect_is_zip": false,
+    "convert_is_zip": false,
+    "game_dir": "C:/Program Files/Innerloop Studios/Project IGI",
+    "collect_path": "C:/igi1_collect",
+    "convert_path": "C:/igi1_convert"
+  }
+}   
